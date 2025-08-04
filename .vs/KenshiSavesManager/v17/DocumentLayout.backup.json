@@ -1,0 +1,135 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Personal\\Projects\\Kenshi Saves Manager\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|d:\\personal\\projects\\kenshi saves manager\\kenshisavesmanager\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|solutionrelative:kenshisavesmanager\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|d:\\personal\\projects\\kenshi saves manager\\kenshisavesmanager\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|solutionrelative:kenshisavesmanager\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|d:\\personal\\projects\\kenshi saves manager\\kenshisavesmanager\\helpers\\kenshisavehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|solutionrelative:kenshisavesmanager\\helpers\\kenshisavehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|d:\\personal\\projects\\kenshi saves manager\\kenshisavesmanager\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{26ADD171-FAFF-CAE7-0C0E-B508EC7ADAFC}|KenshiSavesManager.csproj|solutionrelative:kenshisavesmanager\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Program.cs",
+              "RelativeDocumentMoniker": "KenshiSavesManager\\Program.cs",
+              "ToolTip": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Program.cs",
+              "RelativeToolTip": "KenshiSavesManager\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-03T09:19:41.935Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form1.cs [Design]",
+              "DocumentMoniker": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Form1.cs",
+              "RelativeDocumentMoniker": "KenshiSavesManager\\Form1.cs",
+              "ToolTip": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Form1.cs [Design]",
+              "RelativeToolTip": "KenshiSavesManager\\Form1.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-03T09:19:50.121Z",
+              "IsPinned": true,
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Form1.cs",
+              "RelativeDocumentMoniker": "KenshiSavesManager\\Form1.cs",
+              "ToolTip": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Form1.cs",
+              "RelativeToolTip": "KenshiSavesManager\\Form1.cs",
+              "ViewState": "AgIAABcBAAAAAAAAAAAewCsBAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-03T09:20:22.042Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "KenshiSaveHelper.cs",
+              "DocumentMoniker": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Helpers\\KenshiSaveHelper.cs",
+              "RelativeDocumentMoniker": "KenshiSavesManager\\Helpers\\KenshiSaveHelper.cs",
+              "ToolTip": "D:\\Personal\\Projects\\Kenshi Saves Manager\\KenshiSavesManager\\Helpers\\KenshiSaveHelper.cs",
+              "RelativeToolTip": "KenshiSavesManager\\Helpers\\KenshiSaveHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-03T09:35:48.486Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{13b12e3e-c1b4-4539-9371-4fe9a0d523fc}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:134:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:133:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:132:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:131:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
