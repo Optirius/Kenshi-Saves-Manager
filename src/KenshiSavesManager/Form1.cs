@@ -218,11 +218,8 @@ namespace KenshiSavesManager
                 );
                 _cloudSaves = _cloudSavesData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FileId);
 
-                if (_cloudSavesData.Count == 0)
-                {
-                    cloudSavesListView.Items.Add(new ListViewItem("No cloud saves found."));
-                }
-                else
+                // If there are no cloud saves, the list view will remain empty.
+                if (_cloudSavesData.Count > 0)
                 {
                     foreach (var save in _cloudSavesData)
                     {
