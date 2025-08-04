@@ -169,6 +169,14 @@ namespace KenshiSavesManager
             _localSavesData.Clear();
             try
             {
+                string kenshiSavePath = KenshiSaveHelper.GetKenshiSaveFolderPath();
+                if (!Directory.Exists(kenshiSavePath))
+                {
+                    MessageBox.Show($"Kenshi Saves directory not found. Please make sure the game is installed properly from Steam or GOG.\nExpected location: {kenshiSavePath}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(1);
+                    return;
+                }
+
                 var saveFolders = KenshiSaveHelper.ListSaveGames();
                 _localSavesData = saveFolders.ToDictionary(f => f.Item1, f => f.Item2);
 
