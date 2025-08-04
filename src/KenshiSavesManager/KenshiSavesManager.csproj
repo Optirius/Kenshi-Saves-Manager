@@ -6,10 +6,12 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+	<ApplicationIcon>Resources\Kenshi.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="credentials.json" />
+	<None Include="Resources\Kenshi.ico" />
   </ItemGroup>
 
   <ItemGroup>

@@ -28,6 +28,7 @@ partial class Form1
     /// </summary>
     private void InitializeComponent()
     {
+        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
         loginButton = new Button();
         logoutButton = new Button();
         localSavesListView = new ListView();
@@ -254,6 +255,7 @@ partial class Form1
         Controls.Add(logoutButton);
         Controls.Add(loginButton);
         FormBorderStyle = FormBorderStyle.FixedSingle;
+        Icon = (Icon)resources.GetObject("$this.Icon");
         MaximizeBox = false;
         MinimizeBox = false;
         Name = "Form1";

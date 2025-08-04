@@ -1,5 +1,7 @@
 using System.Linq;
 using System.Windows.Forms;
+using System.Drawing;
+using System.Reflection;
 using Google.Apis.Oauth2.v2;
 using Google.Apis.Services;
 using KenshiSavesManager.Helpers;
@@ -20,13 +22,42 @@ namespace KenshiSavesManager
         public Form1()
         {
             InitializeComponent();
+
+            // Setup ImageList for sync status icons
+            var statusImageList = new ImageList();
+            
+            // Create a custom bitmap for the green tick
+            Bitmap tickBitmap = new Bitmap(16, 16);
+            using (Graphics g = Graphics.FromImage(tickBitmap))
+            {
+                g.Clear(Color.Transparent);
+                using (Pen pen = new Pen(Color.Green, 2))
+                {
+                    g.DrawLines(pen, new Point[] { new Point(3, 8), new Point(7, 12), new Point(13, 3) });
+                }
+            }
+
+            statusImageList.Images.Add("Synced", tickBitmap);
+            statusImageList.Images.Add("Not Synced", SystemIcons.Warning);
+
+            localSavesListView.SmallImageList = statusImageList;
+            cloudSavesListView.SmallImageList = statusImageList;
+
             logoutButton.Enabled = false;
             emailLabel.Text = "Not logged in";
             UpdateActionButtons();
             LoadLocalSaves();
             UpdateAndDisplaySyncStatus();
-            // Ensure progress panel is initially hidden
-            progressPanel.Visible = false;
+            // Set application icon
+            try
+            {
+                this.Icon = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("KenshiSavesManager.Resources.kenshi.png")!);
+            }
+            catch (Exception ex)
+            {
+                // Log or display error if icon cannot be loaded
+                System.Diagnostics.Debug.WriteLine($"Error loading icon: {ex.Message}");
+            }
         }
 
         private void SetProgressUI(bool visible, string message = "")
@@ -231,14 +262,8 @@ namespace KenshiSavesManager
             {
                 if (item.Text == saveName)
                 {
-                    if (item.SubItems.Count > 2)
-                    {
-                        item.SubItems[2].Text = status;
-                    }
-                    else
-                    {
-                        item.SubItems.Add(status);
-                    }
+                    item.ImageKey = status;
+                    item.SubItems[2].Text = status;
                     break;
                 }
             }
