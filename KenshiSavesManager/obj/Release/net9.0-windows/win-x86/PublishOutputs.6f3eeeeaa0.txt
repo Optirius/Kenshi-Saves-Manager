@@ -1,3 +1,0 @@
-D:\Personal\Publish\KenshiSavesManager.pdb
-D:\Personal\Publish\credentials.json
-D:\Personal\Publish\KenshiSavesManager.exe
