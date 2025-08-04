@@ -293,6 +293,9 @@ namespace KenshiSavesManager
         {
             bool isLoggedIn = _driveService != null;
 
+            loginButton.Enabled = !isLoggedIn;
+            logoutButton.Enabled = isLoggedIn;
+
             ListViewItem? localSelectedItem = localSavesListView.SelectedItems.Count > 0 ? localSavesListView.SelectedItems[0] : null;
             ListViewItem? cloudSelectedItem = cloudSavesListView.SelectedItems.Count > 0 ? cloudSavesListView.SelectedItems[0] : null;
 
