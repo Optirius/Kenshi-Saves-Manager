@@ -78,7 +78,7 @@ partial class Form1
         localSavesListView.FullRowSelect = true;
         localSavesListView.Location = new Point(12, 65);
         localSavesListView.Name = "localSavesListView";
-        localSavesListView.Size = new Size(350, 373);
+        localSavesListView.Size = new Size(356, 373);
         localSavesListView.TabIndex = 2;
         localSavesListView.UseCompatibleStateImageBehavior = false;
         localSavesListView.View = View.Details;
@@ -103,7 +103,7 @@ partial class Form1
         // 
         cloudSavesListView.Columns.AddRange(new ColumnHeader[] { saveNameColumnCloud, modifiedDateColumnCloud, syncStatusColumnCloud });
         cloudSavesListView.FullRowSelect = true;
-        cloudSavesListView.Location = new Point(524, 65);
+        cloudSavesListView.Location = new Point(530, 65);
         cloudSavesListView.Name = "cloudSavesListView";
         cloudSavesListView.Size = new Size(354, 373);
         cloudSavesListView.TabIndex = 3;
@@ -138,7 +138,7 @@ partial class Form1
         // cloudSavesLabel
         // 
         cloudSavesLabel.AutoSize = true;
-        cloudSavesLabel.Location = new Point(524, 47);
+        cloudSavesLabel.Location = new Point(530, 47);
         cloudSavesLabel.Name = "cloudSavesLabel";
         cloudSavesLabel.Size = new Size(71, 15);
         cloudSavesLabel.TabIndex = 5;
@@ -146,7 +146,7 @@ partial class Form1
         // 
         // uploadButton
         // 
-        uploadButton.Location = new Point(368, 150);
+        uploadButton.Location = new Point(374, 150);
         uploadButton.Name = "uploadButton";
         uploadButton.Size = new Size(150, 23);
         uploadButton.TabIndex = 6;
@@ -157,7 +157,7 @@ partial class Form1
         // 
         // syncToCloudButton
         // 
-        syncToCloudButton.Location = new Point(368, 179);
+        syncToCloudButton.Location = new Point(374, 179);
         syncToCloudButton.Name = "syncToCloudButton";
         syncToCloudButton.Size = new Size(150, 23);
         syncToCloudButton.TabIndex = 7;
@@ -168,7 +168,7 @@ partial class Form1
         // 
         // downloadButton
         // 
-        downloadButton.Location = new Point(368, 208);
+        downloadButton.Location = new Point(374, 208);
         downloadButton.Name = "downloadButton";
         downloadButton.Size = new Size(150, 23);
         downloadButton.TabIndex = 8;
@@ -179,7 +179,7 @@ partial class Form1
         // 
         // syncToLocalButton
         // 
-        syncToLocalButton.Location = new Point(368, 237);
+        syncToLocalButton.Location = new Point(374, 237);
         syncToLocalButton.Name = "syncToLocalButton";
         syncToLocalButton.Size = new Size(150, 23);
         syncToLocalButton.TabIndex = 9;
@@ -190,7 +190,7 @@ partial class Form1
         // 
         // deleteCloudSaveButton
         // 
-        deleteCloudSaveButton.Location = new Point(368, 266);
+        deleteCloudSaveButton.Location = new Point(374, 266);
         deleteCloudSaveButton.Name = "deleteCloudSaveButton";
         deleteCloudSaveButton.Size = new Size(150, 23);
         deleteCloudSaveButton.TabIndex = 10;
@@ -220,16 +220,16 @@ partial class Form1
         // 
         progressPanel.Controls.Add(statusLabel);
         progressPanel.Controls.Add(progressBar);
-        progressPanel.Location = new Point(0, 0);
+        progressPanel.Location = new Point(1, 0);
         progressPanel.Name = "progressPanel";
-        progressPanel.Size = new Size(889, 450);
+        progressPanel.Size = new Size(895, 450);
         progressPanel.TabIndex = 11;
         progressPanel.Visible = false;
         // 
         // emailLabel
         // 
         emailLabel.AutoSize = true;
-        emailLabel.Location = new Point(660, 16);
+        emailLabel.Location = new Point(680, 16);
         emailLabel.Name = "emailLabel";
         emailLabel.Size = new Size(67, 15);
         emailLabel.TabIndex = 13;
@@ -239,7 +239,7 @@ partial class Form1
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(890, 450);
+        ClientSize = new Size(895, 450);
         Controls.Add(progressPanel);
         Controls.Add(emailLabel);
         Controls.Add(deleteCloudSaveButton);
