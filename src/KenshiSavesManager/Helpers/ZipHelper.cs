@@ -21,7 +21,7 @@ namespace KenshiSavesManager.Helpers
             return tempZipPath;
         }
 
-        public static void UnzipSaveToLocal(string zipFilePath, string saveFolderName)
+        public static void UnzipSaveToLocal(string zipFilePath, string saveFolderName, DateTime modifiedTime)
         {
             string kenshiSavePath = KenshiSaveHelper.GetKenshiSaveFolderPath();
             string destinationDirectory = Path.Combine(kenshiSavePath, saveFolderName);
@@ -41,6 +41,9 @@ namespace KenshiSavesManager.Helpers
 
             // Extract the new save from the zip file.
             ZipFile.ExtractToDirectory(zipFilePath, destinationDirectory);
+
+            // Set the modification date of the new folder to match the cloud save's date
+            Directory.SetLastWriteTime(destinationDirectory, modifiedTime);
         }
     }
 }

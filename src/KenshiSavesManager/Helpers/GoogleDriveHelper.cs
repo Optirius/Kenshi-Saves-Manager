@@ -23,27 +23,38 @@ namespace KenshiSavesManager.Helpers
         }
 
         // Uploads a save file to the app data folder.
-        public static async Task UploadSaveAsync(DriveService service, string zipFilePath)
+        public static async Task<DateTimeOffset> UploadSaveAsync(DriveService service, string zipFilePath)
         {
             var fileMetadata = new Google.Apis.Drive.v3.Data.File()
             {
                 Name = Path.GetFileName(zipFilePath),
-                // We specify the appDataFolder as the parent.
                 Parents = new List<string> { AppDataFolder }
             };
 
+            Google.Apis.Drive.v3.Data.File file;
             using (var stream = new FileStream(zipFilePath, FileMode.Open))
             {
                 var request = service.Files.Create(fileMetadata, stream, "application/zip");
-                request.Fields = "id";
-                await request.UploadAsync();
+                request.Fields = "id, modifiedTime";
+                var result = await request.UploadAsync();
+
+                if (result.Status != UploadStatus.Completed)
+                {
+                    throw new System.Exception($"Upload failed: {result.Exception.Message}");
+                }
+                file = request.ResponseBody;
             }
+            return file.ModifiedTimeDateTimeOffset ?? DateTimeOffset.UtcNow;
         }
 
         // Downloads a save file from the app data folder.
-        public static async Task DownloadSaveAsync(DriveService service, string fileId, string destinationPath)
+        public static async Task<DateTimeOffset> DownloadSaveAsync(DriveService service, string fileId, string destinationPath)
         {
             var request = service.Files.Get(fileId);
+            request.Fields = "modifiedTime";
+            var file = await request.ExecuteAsync();
+            var modifiedTime = file.ModifiedTimeDateTimeOffset ?? DateTimeOffset.MinValue;
+
             using (var memoryStream = new MemoryStream())
             {
                 await request.DownloadAsync(memoryStream);
@@ -52,6 +63,7 @@ namespace KenshiSavesManager.Helpers
                     memoryStream.WriteTo(fileStream);
                 }
             }
+            return modifiedTime;
         }
 
         // Deletes a save file from the app data folder.

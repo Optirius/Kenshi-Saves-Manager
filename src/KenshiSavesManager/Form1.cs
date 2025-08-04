@@ -14,6 +14,9 @@ namespace KenshiSavesManager
         private UserSyncData _currentUserSyncData = new UserSyncData();
         private string? _loggedInUserEmail;
 
+        private Dictionary<string, (string FileId, DateTime ModifiedTime)> _cloudSavesData = new Dictionary<string, (string, DateTime)>();
+        private Dictionary<string, DateTime> _localSavesData = new Dictionary<string, DateTime>();
+
         public Form1()
         {
             InitializeComponent();
@@ -21,6 +24,7 @@ namespace KenshiSavesManager
             emailLabel.Text = "Not logged in";
             UpdateActionButtons();
             LoadLocalSaves();
+            UpdateAndDisplaySyncStatus();
             // Ensure progress panel is initially hidden
             progressPanel.Visible = false;
         }
@@ -66,21 +70,31 @@ namespace KenshiSavesManager
                     ApplicationName = "Kenshi Saves Manager",
                 });
                 var userInfo = await oauthService.Userinfo.Get().ExecuteAsync();
+                var userEmail = userInfo.Email;
 
-                statusLabel.Text = "Login successful!";
-                _loggedInUserEmail = userInfo.Email;
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    MessageBox.Show("Could not retrieve user email. Please try again.");
+                    return;
+                }
+
+                _loggedInUserEmail = userEmail;
                 emailLabel.Text = _loggedInUserEmail;
                 loginButton.Enabled = false;
                 logoutButton.Enabled = true;
 
                 _syncData = SyncDataManager.LoadSyncData();
+                #pragma warning disable CS8601 // Possible null reference assignment.
                 if (!_syncData.Users.TryGetValue(_loggedInUserEmail, out _currentUserSyncData))
+#pragma warning restore CS8601 // Possible null reference assignment.
                 {
                     _currentUserSyncData = new UserSyncData();
                     _syncData.Users[_loggedInUserEmail] = _currentUserSyncData;
                 }
 
+                LoadLocalSaves();
                 await LoadCloudSavesAsync();
+                UpdateAndDisplaySyncStatus();
             }
             catch (System.Exception ex)
             {
@@ -109,6 +123,7 @@ namespace KenshiSavesManager
                 _loggedInUserEmail = null;
                 _currentUserSyncData = new UserSyncData();
                 SyncDataManager.SaveSyncData(_syncData);
+                UpdateAndDisplaySyncStatus();
             }
             finally
             {
@@ -120,10 +135,12 @@ namespace KenshiSavesManager
         private void LoadLocalSaves()
         {
             localSavesListView.Items.Clear();
+            _localSavesData.Clear();
             try
             {
                 var saveFolders = KenshiSaveHelper.ListSaveGames();
-                MessageBox.Show($"Found {saveFolders.Count} local save folders.");
+                _localSavesData = saveFolders.ToDictionary(f => f.Item1, f => f.Item2);
+
                 if (saveFolders.Count == 0)
                 {
                     localSavesListView.Items.Add(new ListViewItem("No Kenshi save folders found."));
@@ -132,50 +149,9 @@ namespace KenshiSavesManager
                 {
                     foreach (var folder in saveFolders)
                     {
-                        string saveName = folder.Item1;
-                        DateTime lastModified = folder.Item2;
-                        string syncStatus = "";
-
-                        _currentUserSyncData.LocalSaves.TryGetValue(saveName, out var localSaveInfo);
-                        _currentUserSyncData.CloudSaves.TryGetValue(saveName, out var cloudSaveInfo);
-
-                        if (localSaveInfo == null)
-                        {
-                            localSaveInfo = new LocalSaveInfo { LastModified = lastModified };
-                            _currentUserSyncData.LocalSaves[saveName] = localSaveInfo;
-                        }
-                        else
-                        {
-                            localSaveInfo.LastModified = lastModified;
-                        }
-
-                        if (cloudSaveInfo != null)
-                        {
-                            if (localSaveInfo.LastSyncedToCloud.HasValue && localSaveInfo.LastSyncedToCloud.Value == lastModified)
-                            {
-                                syncStatus = "Synced";
-                            }
-                            else if (cloudSaveInfo.LastModified > lastModified)
-                            {
-                                syncStatus = "Cloud Newer";
-                            }
-                            else if (cloudSaveInfo.LastModified < lastModified)
-                            {
-                                syncStatus = "Local Newer";
-                            }
-                            else
-                            {
-                                syncStatus = "Synced"; // Dates match, consider it synced
-                            }
-                        }
-                        else
-                        {
-                            syncStatus = "Not Synced";
-                        }
-
-                        ListViewItem item = new ListViewItem(saveName);
-                        item.SubItems.Add(lastModified.ToString("yyyy-MM-dd HH:mm"));
-                        item.SubItems.Add(syncStatus);
+                        ListViewItem item = new ListViewItem(folder.Item1);
+                        item.SubItems.Add(folder.Item2.ToString("yyyy-MM-dd HH:mm"));
+                        item.SubItems.Add(""); // Status will be updated by UpdateAndDisplaySyncStatus
                         localSavesListView.Items.Add(item);
                     }
                 }
@@ -190,68 +166,30 @@ namespace KenshiSavesManager
         {
             cloudSavesListView.Items.Clear();
             _cloudSaves.Clear();
+            _cloudSavesData.Clear();
             if (_driveService == null) return;
 
             SetProgressUI(true, "Loading cloud saves...");
             try
             {
-                var cloudSavesData = await GoogleDriveHelper.ListSavedGamesAsync(_driveService);
-                _cloudSaves = cloudSavesData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1);
+                var cloudSaves = await GoogleDriveHelper.ListSavedGamesAsync(_driveService);
+                _cloudSavesData = cloudSaves.ToDictionary(
+                    kvp => kvp.Key, 
+                    kvp => (kvp.Value.Item1, kvp.Value.Item2.LocalDateTime)
+                );
+                _cloudSaves = _cloudSavesData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FileId);
 
-                MessageBox.Show($"Found {cloudSavesData.Count} cloud saves.");
-
-                if (cloudSavesData.Count == 0)
+                if (_cloudSavesData.Count == 0)
                 {
                     cloudSavesListView.Items.Add(new ListViewItem("No cloud saves found."));
                 }
                 else
                 {
-                    foreach (var save in cloudSavesData)
+                    foreach (var save in _cloudSavesData)
                     {
-                        string saveName = save.Key;
-                        DateTimeOffset lastModified = save.Value.Item2;
-                        string syncStatus = "";
-
-                        _currentUserSyncData.CloudSaves.TryGetValue(saveName, out var cloudSaveInfo);
-                        _currentUserSyncData.LocalSaves.TryGetValue(saveName, out var localSaveInfo);
-
-                        if (cloudSaveInfo == null)
-                        {
-                            cloudSaveInfo = new CloudSaveInfo { LastModified = lastModified.LocalDateTime };
-                            _currentUserSyncData.CloudSaves[saveName] = cloudSaveInfo;
-                        }
-                        else
-                        {
-                            cloudSaveInfo.LastModified = lastModified.LocalDateTime;
-                        }
-
-                        if (localSaveInfo != null)
-                        {
-                            if (cloudSaveInfo.LastSyncedToLocal.HasValue && cloudSaveInfo.LastSyncedToLocal.Value == lastModified.LocalDateTime)
-                            {
-                                syncStatus = "Synced";
-                            }
-                            else if (localSaveInfo.LastModified > lastModified.LocalDateTime)
-                            {
-                                syncStatus = "Local Newer";
-                            }
-                            else if (localSaveInfo.LastModified < lastModified.LocalDateTime)
-                            {
-                                syncStatus = "Cloud Newer";
-                            }
-                            else
-                            {
-                                syncStatus = "Synced"; // Dates match, consider it synced
-                            }
-                        }
-                        else
-                        {
-                            syncStatus = "Not Synced";
-                        }
-
-                        ListViewItem item = new ListViewItem(saveName);
-                        item.SubItems.Add(lastModified.LocalDateTime.ToString("yyyy-MM-dd HH:mm"));
-                        item.SubItems.Add(syncStatus);
+                        ListViewItem item = new ListViewItem(save.Key);
+                        item.SubItems.Add(save.Value.ModifiedTime.ToString("yyyy-MM-dd HH:mm"));
+                        item.SubItems.Add(""); // Status will be updated by UpdateAndDisplaySyncStatus
                         cloudSavesListView.Items.Add(item);
                     }
                 }
@@ -264,6 +202,45 @@ namespace KenshiSavesManager
             {
                 SetProgressUI(false);
                 UpdateActionButtons();
+            }
+        }
+
+        private void UpdateAndDisplaySyncStatus()
+        {
+            var allSaveNames = _localSavesData.Keys.Union(_cloudSavesData.Keys).ToList();
+
+            foreach (var saveName in allSaveNames)
+            {
+                bool isLocal = _localSavesData.TryGetValue(saveName, out var localTime);
+                bool isCloud = _cloudSavesData.TryGetValue(saveName, out var cloudSave);
+
+                string status = "Not Synced";
+                if (isLocal && isCloud && localTime == cloudSave.ModifiedTime)
+                {
+                    status = "Synced";
+                }
+
+                UpdateListViewItemStatus(localSavesListView, saveName, status);
+                UpdateListViewItemStatus(cloudSavesListView, saveName, status);
+            }
+        }
+
+        private void UpdateListViewItemStatus(ListView listView, string saveName, string status)
+        {
+            foreach (ListViewItem item in listView.Items)
+            {
+                if (item.Text == saveName)
+                {
+                    if (item.SubItems.Count > 2)
+                    {
+                        item.SubItems[2].Text = status;
+                    }
+                    else
+                    {
+                        item.SubItems.Add(status);
+                    }
+                    break;
+                }
             }
         }
 
@@ -286,12 +263,41 @@ namespace KenshiSavesManager
             ListViewItem? localSelectedItem = localSavesListView.SelectedItems.Count > 0 ? localSavesListView.SelectedItems[0] : null;
             ListViewItem? cloudSelectedItem = cloudSavesListView.SelectedItems.Count > 0 ? cloudSavesListView.SelectedItems[0] : null;
 
-            uploadButton.Visible = isLoggedIn && localSelectedItem != null && !_cloudSaves.ContainsKey(localSelectedItem.Text);
-            syncToCloudButton.Visible = isLoggedIn && localSelectedItem != null && _cloudSaves.ContainsKey(localSelectedItem.Text);
+            // Default all to hidden
+            uploadButton.Visible = false;
+            syncToCloudButton.Visible = false;
+            downloadButton.Visible = false;
+            syncToLocalButton.Visible = false;
+            deleteCloudSaveButton.Visible = false;
 
-            downloadButton.Visible = isLoggedIn && cloudSelectedItem != null && !localSavesListView.Items.Cast<ListViewItem>().Any(item => item.Text == cloudSelectedItem.Text);
-            syncToLocalButton.Visible = isLoggedIn && cloudSelectedItem != null && localSavesListView.Items.Cast<ListViewItem>().Any(item => item.Text == cloudSelectedItem.Text);
-            deleteCloudSaveButton.Visible = isLoggedIn && cloudSelectedItem != null;
+            if (isLoggedIn)
+            {
+                if (localSelectedItem != null)
+                {
+                    bool existsInCloud = _cloudSaves.ContainsKey(localSelectedItem.Text);
+                    if (existsInCloud)
+                    {
+                        syncToCloudButton.Visible = true;
+                    }
+                    else
+                    {
+                        uploadButton.Visible = true;
+                    }
+                }
+                else if (cloudSelectedItem != null)
+                {
+                    bool existsLocally = localSavesListView.Items.Cast<ListViewItem>().Any(item => item.Text == cloudSelectedItem.Text);
+                    deleteCloudSaveButton.Visible = true;
+                    if (existsLocally)
+                    {
+                        syncToLocalButton.Visible = true;
+                    }
+                    else
+                    {
+                        downloadButton.Visible = true;
+                    }
+                }
+            }
         }
 
         private async void uploadButton_Click(object sender, System.EventArgs e)
@@ -304,17 +310,22 @@ namespace KenshiSavesManager
                 statusLabel.Text = "Zipping save folder...";
                 string zipPath = ZipHelper.ZipSaveFolder(saveName);
                 statusLabel.Text = "Uploading to Google Drive...";
-                await GoogleDriveHelper.UploadSaveAsync(_driveService, zipPath);
+                var modifiedTime = await GoogleDriveHelper.UploadSaveAsync(_driveService, zipPath);
                 File.Delete(zipPath); // Clean up temp file
                 statusLabel.Text = "Upload successful!";
 
                 // Update sync data
-                _currentUserSyncData.LocalSaves[saveName].LastSyncedToCloud = DateTime.Now;
-                _currentUserSyncData.CloudSaves[saveName] = new CloudSaveInfo { LastModified = DateTime.Now };
+                _currentUserSyncData.Saves[saveName] = new SaveInfo { LastModified = modifiedTime.LocalDateTime, LastSynced = modifiedTime.LocalDateTime };
                 SyncDataManager.SaveSyncData(_syncData);
+
+                // Update local save time to match cloud save time
+                string kenshiSavePath = KenshiSaveHelper.GetKenshiSaveFolderPath();
+                string sourceDirectory = Path.Combine(kenshiSavePath, saveName);
+                Directory.SetLastWriteTime(sourceDirectory, modifiedTime.LocalDateTime);
 
                 LoadLocalSaves();
                 await LoadCloudSavesAsync();
+                UpdateAndDisplaySyncStatus();
             }
             catch (System.Exception ex)
             {
@@ -340,17 +351,22 @@ namespace KenshiSavesManager
                 statusLabel.Text = "Zipping new save folder...";
                 string zipPath = ZipHelper.ZipSaveFolder(saveName);
                 statusLabel.Text = "Uploading to Google Drive...";
-                await GoogleDriveHelper.UploadSaveAsync(_driveService, zipPath);
+                var modifiedTime = await GoogleDriveHelper.UploadSaveAsync(_driveService, zipPath);
                 File.Delete(zipPath);
                 statusLabel.Text = "Sync successful!";
 
                 // Update sync data
-                _currentUserSyncData.LocalSaves[saveName].LastSyncedToCloud = DateTime.Now;
-                _currentUserSyncData.CloudSaves[saveName] = new CloudSaveInfo { LastModified = DateTime.Now };
+                _currentUserSyncData.Saves[saveName] = new SaveInfo { LastModified = modifiedTime.LocalDateTime, LastSynced = modifiedTime.LocalDateTime };
                 SyncDataManager.SaveSyncData(_syncData);
+
+                // Update local save time to match cloud save time
+                string kenshiSavePath = KenshiSaveHelper.GetKenshiSaveFolderPath();
+                string sourceDirectory = Path.Combine(kenshiSavePath, saveName);
+                Directory.SetLastWriteTime(sourceDirectory, modifiedTime.LocalDateTime);
 
                 LoadLocalSaves();
                 await LoadCloudSavesAsync();
+                UpdateAndDisplaySyncStatus();
             }
             catch (System.Exception ex)
             {
@@ -373,19 +389,19 @@ namespace KenshiSavesManager
                 string fileId = _cloudSaves[saveName];
                 string tempZipPath = Path.Combine(Path.GetTempPath(), $"{saveName}.zip");
                 statusLabel.Text = "Downloading from Google Drive...";
-                await GoogleDriveHelper.DownloadSaveAsync(_driveService, fileId, tempZipPath);
+                var modifiedTime = await GoogleDriveHelper.DownloadSaveAsync(_driveService, fileId, tempZipPath);
                 statusLabel.Text = "Extracting save...";
-                ZipHelper.UnzipSaveToLocal(tempZipPath, saveName);
+                ZipHelper.UnzipSaveToLocal(tempZipPath, saveName, modifiedTime.LocalDateTime);
                 File.Delete(tempZipPath);
                 statusLabel.Text = "Download successful!";
 
                 // Update sync data
-                _currentUserSyncData.CloudSaves[saveName].LastSyncedToLocal = DateTime.Now;
-                _currentUserSyncData.LocalSaves[saveName] = new LocalSaveInfo { LastModified = DateTime.Now };
+                _currentUserSyncData.Saves[saveName] = new SaveInfo { LastModified = modifiedTime.LocalDateTime, LastSynced = modifiedTime.LocalDateTime };
                 SyncDataManager.SaveSyncData(_syncData);
 
                 LoadLocalSaves();
                 await LoadCloudSavesAsync();
+                UpdateAndDisplaySyncStatus();
             }
             catch (System.Exception ex)
             {
@@ -408,19 +424,19 @@ namespace KenshiSavesManager
                 string fileId = _cloudSaves[saveName];
                 string tempZipPath = Path.Combine(Path.GetTempPath(), $"{saveName}.zip");
                 statusLabel.Text = "Downloading from Google Drive...";
-                await GoogleDriveHelper.DownloadSaveAsync(_driveService, fileId, tempZipPath);
+                var modifiedTime = await GoogleDriveHelper.DownloadSaveAsync(_driveService, fileId, tempZipPath);
                 statusLabel.Text = "Extracting and overwriting local save...";
-                ZipHelper.UnzipSaveToLocal(tempZipPath, saveName);
+                ZipHelper.UnzipSaveToLocal(tempZipPath, saveName, modifiedTime.LocalDateTime);
                 File.Delete(tempZipPath);
                 statusLabel.Text = "Sync successful!";
 
                 // Update sync data
-                _currentUserSyncData.CloudSaves[saveName].LastSyncedToLocal = DateTime.Now;
-                _currentUserSyncData.LocalSaves[saveName] = new LocalSaveInfo { LastModified = DateTime.Now };
+                _currentUserSyncData.Saves[saveName] = new SaveInfo { LastModified = modifiedTime.LocalDateTime, LastSynced = modifiedTime.LocalDateTime };
                 SyncDataManager.SaveSyncData(_syncData);
 
                 LoadLocalSaves();
                 await LoadCloudSavesAsync();
+                UpdateAndDisplaySyncStatus();
             }
             catch (System.Exception ex)
             {
@@ -445,15 +461,12 @@ namespace KenshiSavesManager
                 statusLabel.Text = $"Cloud save '{saveName}' deleted successfully.";
 
                 // Update sync data
-                _currentUserSyncData.CloudSaves.Remove(saveName);
-                if (_currentUserSyncData.LocalSaves.ContainsKey(saveName))
-                {
-                    _currentUserSyncData.LocalSaves[saveName].LastSyncedToCloud = null;
-                }
+                _currentUserSyncData.Saves.Remove(saveName);
                 SyncDataManager.SaveSyncData(_syncData);
 
                 LoadLocalSaves();
                 await LoadCloudSavesAsync();
+                UpdateAndDisplaySyncStatus();
             }
             catch (System.Exception ex)
             {

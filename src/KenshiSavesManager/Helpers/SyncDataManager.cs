@@ -1,11 +1,11 @@
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System;
 
 namespace KenshiSavesManager.Helpers
 {
-    public class SyncDataManager
+    public static class SyncDataManager
     {
         private static readonly string SyncDataFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sync_data.json");
 
@@ -33,19 +33,12 @@ namespace KenshiSavesManager.Helpers
 
     public class UserSyncData
     {
-        public Dictionary<string, LocalSaveInfo> LocalSaves { get; set; } = new Dictionary<string, LocalSaveInfo>();
-        public Dictionary<string, CloudSaveInfo> CloudSaves { get; set; } = new Dictionary<string, CloudSaveInfo>();
+        public Dictionary<string, SaveInfo> Saves { get; set; } = new Dictionary<string, SaveInfo>();
     }
 
-    public class LocalSaveInfo
+    public class SaveInfo
     {
         public DateTime LastModified { get; set; }
-        public DateTime? LastSyncedToCloud { get; set; }
-    }
-
-    public class CloudSaveInfo
-    {
-        public DateTime LastModified { get; set; }
-        public DateTime? LastSyncedToLocal { get; set; }
+        public DateTime? LastSynced { get; set; }
     }
 }
